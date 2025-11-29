@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  pcb-api:
+    build: ./pcb_model
+    container_name: pcb-api
+    ports:
+      - "8010:8010"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  pcb-agent-api:
+      build: ./agent
+      container_name: pcb-agent-api
+      ports:
+        - "8020:8020"
+      env_file:
+        - .env
+      restart: unless-stopped

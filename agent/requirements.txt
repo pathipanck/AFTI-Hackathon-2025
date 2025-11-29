@@ -1,0 +1,30 @@
+# --- Core Frameworks ---
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+langchain-groq
+langgraph
+deepagents
+
+# --- AI & Search Utilities ---
+tavily-python
+markdownify
+
+# --- Computer Vision & Image Processing (เพิ่มใหม่) ---
+inference-sdk   # สำหรับ Roboflow Client
+Pillow          # สำหรับจัดการรูปภาพ (PIL)
+numpy           # สำหรับคำนวณ Array ของรูปภาพ (มักต้องใช้คู่กับ Vision)
+
+# --- System & Utilities ---
+python-dotenv
+httpx
+pydantic
+rich            # สำหรับ Pretty Print ใน Terminal
+ipykernel       # สำหรับรันใน Notebook (ถ้าใช้)
+langgraph-cli[inmem]
+
+fastapi
+uvicorn
+python-dotenv
+python-multipart
