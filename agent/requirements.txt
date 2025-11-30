@@ -28,3 +28,5 @@ fastapi
 uvicorn
 python-dotenv
 python-multipart
+
+supabase
