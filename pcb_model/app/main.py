@@ -22,9 +22,9 @@ app = FastAPI(
 )
 
 
-@app.get("/health")
+@app.get("/")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "message": "PCB Defect Detection API is running."}
 
 
 @app.post("/detect-image")

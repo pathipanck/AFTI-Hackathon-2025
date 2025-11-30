@@ -238,3 +238,101 @@ def get_all_detections() -> List[Dict[str, Any]]:
         results.append(main_item)
 
     return results
+
+from typing import List, Dict, Any
+
+def save_detection_from_agent_bytes_and_get_urls(
+    main_image: Dict[str, Any],
+    crops: List[Dict[str, Any]],
+    board_code: str | None = None,
+    note: str | None = None,
+):
+    """
+    ใช้ในกรณีที่ agent มีรูปหลัก + crop อยู่แล้ว (เป็น bytes + meta)
+    main_image: {
+        "bytes": ...,
+        "width": int,
+        "height": int,
+        "original_filename": str | None,
+    }
+    crops: [
+        {
+            "bytes": ...,
+            "width": int,
+            "height": int,
+            "prediction": str,
+            "confidence": float,
+            "bbox": {"x": int, "y": int, "w": int, "h": int}  # optional
+        },
+        ...
+    ]
+    """
+    # 1) upload main image
+    main_storage_path, main_public_url = upload_to_storage(
+        main_image["bytes"],
+        folder="pcb/main",
+        ext="png",
+    )
+
+    # 2) insert main image row
+    main_image_id = insert_main_image(
+        storage_path=main_storage_path,
+        public_url=main_public_url,
+        width=int(main_image["width"]),
+        height=int(main_image["height"]),
+        original_filename=main_image.get("original_filename"),
+        board_code=board_code,
+        note=note,
+    )
+
+    main_payload = {
+        "id": main_image_id,
+        "storage_path": main_storage_path,
+        "public_url": main_public_url,
+        "width": int(main_image["width"]),
+        "height": int(main_image["height"]),
+        "original_filename": main_image.get("original_filename"),
+        "board_code": board_code,
+        "note": note,
+    }
+
+    # 3) upload crops + insert defects
+    crops_payload: List[Dict[str, Any]] = []
+
+    for crop in crops:
+        crop_storage_path, crop_public_url = upload_to_storage(
+            crop["bytes"],
+            folder="pcb/crops",
+            ext="png",
+        )
+
+        bbox = crop.get("bbox")
+
+        defect_row = insert_defect_crop(
+            main_image_id=main_image_id,
+            crop_storage_path=crop_storage_path,
+            crop_public_url=crop_public_url,
+            crop_width=int(crop["width"]),
+            crop_height=int(crop["height"]),
+            prediction=str(crop["prediction"]),
+            confidence=float(crop["confidence"]),
+            bbox=bbox,
+        )
+
+        crops_payload.append(
+            {
+                "id": defect_row["id"],
+                "crop_storage_path": crop_storage_path,
+                "crop_public_url": crop_public_url,
+                "width": int(crop["width"]),
+                "height": int(crop["height"]),
+                "prediction": str(crop["prediction"]),
+                "confidence": float(crop["confidence"]),
+                "bbox": bbox,
+            }
+        )
+
+    return {
+        "main_image": main_payload,
+        "crops": crops_payload,
+    }
